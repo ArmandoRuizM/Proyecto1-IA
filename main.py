@@ -3,9 +3,11 @@ import numpy as np
 import turtle
 
 wn= turtle.Screen()
-wn.bgcolor("black")
+wn.bgcolor("Black")
 wn.title("ProyectoIA")
 wn.setup(700,700)
+wn.tracer(0)
+ 
 
 #Crear pen
 class Pen(turtle.Turtle):
@@ -29,6 +31,7 @@ Colores={
 
 #Crear instancia de pen
 pen = Pen()
+#agente = Agent()
 
 def confLaberinto(Laberinto):
     for y in range(len(Laberinto)):
@@ -64,12 +67,6 @@ def confLaberinto(Laberinto):
           pen.goto(screen_x,screen_y)
           pen.color(Colores["6"])
           pen.stamp()
-        
-
-
-
-
-
 
 
 def reading(dir):
@@ -90,10 +87,12 @@ def reading(dir):
   file.close()
   return laberinto
   
+
  
 maze=reading("Prueba1.txt")
 confLaberinto(maze)
-  
- 
+
+
 while True:
-  pass
+  wn.update()
+
