@@ -92,7 +92,7 @@ def reading(dir):
 
  
 maze=reading("Prueba1.txt")
-print(maze)
+#print(maze)
 #confLaberinto(maze)
 
 
@@ -117,6 +117,9 @@ class Stack:
     def is_empty(self): 
         return len(self.elements) == 0
 
+    def showStack(self):
+        print(self.elements)
+
 #Se define la clase Depth first search node, usada para implementar el algoritmo de búsqueda preferente por profundidad
 class DfsNode:
   #Se define el método constructor
@@ -132,7 +135,7 @@ class DfsNode:
 
   #Método que recibe un entero entre 0 y 3, y mueve el agente en una dirección, 0=izquierda, 1=arriba, 2=derecha, 3=abajo y retorna el nuevo estado en el que se encuentra el agente
   def move(self, direction):
-    newStatus=self.status
+    newStatus=self.status.copy()
     #Se realiza el cambio en la posición de acuerdo al operador que se usa:
     if direction == 0:#izquierda
       newStatus[1]=self.status[1]-1
@@ -143,10 +146,21 @@ class DfsNode:
     if direction == 3:#abajo
       newStatus[0]=self.status[0]+1
     #Luego se verifican los demás posibles cambios en el estado
-    #Se verifica si se cayó en una casilla que contiene un objeto y lo toma
-    if maze[newStatus[0]][newStatus[1]]==5:
-      newStatus[2]=newStatus[2]+1 #Se aumenta un objeto
-    #Se verifica si se cayó en la nave 1
+    #Se verifica los casos en los que llega a un item
+    if (newStatus[2]==True and newStatus[3]==False): #Se mira si ya se tomó un objeto, entonces se va a tomar un segundo
+      if not (newStatus[0]==newStatus[4] and newStatus[1]==newStatus[5]): #Si no está tratando de coger el objeto que ya había cogido
+        if maze[newStatus[0]][newStatus[1]]==5:
+          #Se dice que se tomó un primer objeto y se guarda sus coordenadas para evitar ciclos
+          newStatus[3]=True
+
+    if not (newStatus[2] and newStatus[3]): #Se mira si es el primer objeto que coge
+      #Se verifica si cayó en un item y lo toma
+      if maze[newStatus[0]][newStatus[1]]==5:
+        #Se dice que se tomó un primer objeto y se guarda sus coordenadas para evitar ciclos
+        newStatus[2]=True
+        newStatus[4]=newStatus[0]
+        newStatus[5]=newStatus[1]
+    
     return newStatus
 
   #Getter del estado del nodo
@@ -161,9 +175,13 @@ class DfsNode:
   def getDepth(self):
     return self.depth
 
+  #Getter del operador del nodo
+  def getOperator(self):
+    return self.operator
+
   #Método que retorna si se llegó a la meta o no
   def solution(self):
-    if self.status[2]==2:
+    if (self.status[2] and self.status[3]):
       return True
     else:
       return False
@@ -173,11 +191,11 @@ class DfsNode:
 #[posición en X, posición en Y, cantidad de items, cogió nave1?, cogió nave2?, gasolina nave1, gasolina nave2]
 #se debe determinar cuál es el estado inicial para construir el nodo raíz:
 def initStatus(maze):
-  status=[0,0,0,False,False,10,20]
+  status=[0,0,False,False,-1,-1]
   for i in range(len(maze)):
     for j in range(len(maze)):
       if(maze[i][j]==2):
-        status=[i,j,0,False,False,10,10]
+        status=[i,j,False,False, -1, -1]
   return status
 
 #Método que recibe un estado y con base en este determina en qué direcciones se podría mover el agente
@@ -215,7 +233,8 @@ def thereIsCycle(status, node):
       #Decimos que hay un ciclo
       cycle = True
       control = False
-    elif auxNode.getParent() is None: #Revisamos si el nodo aún tiene un padre o ya se acabaron
+
+    if auxNode.getParent() is None: #Revisamos si el nodo aún tiene un padre o ya se acabaron
       #Si ya se acabaron, se termina el while
       control = False
 
@@ -250,44 +269,60 @@ def expandNode(node):
       #En caso de no existir ciclo, creamos un nuevo nodo y lo guardamos en children
       children[3]=DfsNode(node.move(3), node, 3, node.getDepth()+1)
 
-  
-
-  
-
-  
-  
   return children
 
+def getPath(node):
+  auxNode=node
+  #Empezamos creando un arreglo para guardar los movimientos en orden
+  path = []
+  if node.getParent() is None: #Si el nodo no tiene padre
+    #No hace falta verificar jaja
+    control = False
+  else: #Si el nodo tiene padre
+    #Puede existir un ciclo, toca verificar
+    control = True
+
+  while control:
+    path.append(auxNode.getOperator())
+    if auxNode.getParent() is None: #Revisamos si el nodo aún tiene un padre o ya se acabaron
+      #Si ya se acabaron, se termina el while
+      control = False
+    auxNode=auxNode.getParent() #Setteamos el nodo auxiliar como el padre del nodo
+
+  return path
+
 def dfsSolve():
+  #Contador de nodos expandidos
+  expandedNodes = 0
+  #Se crea la pila
   dfsTree = Stack()
+  #Se le añade el nodo raíz
   dfsTree.push(DfsNode(initStatus(maze),None,None,0))
   go = True
+  #Se inicia un bucle que solo termina al encontrar solución o decir que no existe una
   while go:
+    #Si no quedaron nodos a expandir y ninguno fue meta, se dice que no existe solución
     if dfsTree.is_empty():
       return ("La búsqueda falló :(")
+    #Se guarda el nodo raíz en n
     n=dfsTree.peek()
+    #Se saca el nodo raíz de la pila
     dfsTree.pop()
-    if n.solution():
-      return ("La búsqueda fue exitosa :)")
+    expandedNodes+=1
+    if n.solution(): #Se determina si el nodo raíz es meta
+      #De ser así, se dice que existe solución
+      return ("La búsqueda fue exitosa :)\nSe expandieron "+str(expandedNodes)+ " nodos.\nLa profundidad del arbol es "+str(n.getDepth()))
     else:
+      #Si no es meta, entonces se expande
       createdNodes = expandNode(n)
-      print("Se expandió un nodo")
       if not createdNodes[3] is None:
-        print("se encontró movimiento posible abajo")
         dfsTree.push(createdNodes[3])
-        print(dfsTree.peek().getStatus())
       if not createdNodes[2] is None:
-        print("se encontró movimiento posible a la derecha")
         dfsTree.push(createdNodes[2])
-        print(dfsTree.peek().getStatus())
       if not createdNodes[1] is None:
-        print("se encontró movimiento posible arriba")
         dfsTree.push(createdNodes[1])
-        print(dfsTree.peek().getStatus())
       if not createdNodes[0] is None:
-        print("se encontró movimiento posible a la izquierda")
         dfsTree.push(createdNodes[0])
-        print(dfsTree.peek().getStatus())
 
 print(dfsSolve())
-print(radar([2,2,0,False,False,10,10]))
+
