@@ -5,26 +5,6 @@ import numpy as np
 from turtle import *
 import time
 
-# #Crear pen
-# class Pen(turtle.Turtle):
-#   def __init__(self):
-#     turtle.Turtle.__init__(self)
-#     self.shape("square")
-#     self.color()
-#     self.penup()
-#     self.speed(0)
-    
-# #Diccionario de Colores
-# Colores={
-#   "0": "white",
-#   "1": "brown",
-#   "2": "blue",
-#   "3": "green",
-#   "4": "purple",
-#   "5": "yellow",
-#   "6": "red"
-# }
-
 ##Función para configurar la pantalla que muestra el ambiente:
 GUI = Screen()
 GUI.bgcolor("Black")
@@ -92,7 +72,7 @@ def reading(dir):
  #Se carga el laberinto a la variable maze que se usa en todo lado
 maze=reading("Prueba1.txt")
 
-def drawSolution(solution):
+def drawBasicSolution(solution):
   x0=-1
   y0=-1
   #Se determina cual es la posición inicial del agente
@@ -103,7 +83,7 @@ def drawSolution(solution):
         y0=j
   screen_x=-250+(x0*50)
   screen_y=250-(y0*50)
-  speed(5)
+  speed(6)
   pencolor("black")
   fillcolor("white")
   begin_fill()
@@ -116,22 +96,10 @@ def drawSolution(solution):
   solution[0].pop()
   for i in reversed(solution[0]):
     if i==0:
-      screen_x=screen_x-50
-      pencolor("black")
-      fillcolor("blue")
-      begin_fill()
-      goto(screen_x, screen_y-50)
-      goto(screen_x, screen_y)
-      goto(screen_x+50, screen_y)
-      goto(screen_x+50, screen_y-50)
-      goto(screen_x, screen_y-50)
-      end_fill()
-      screen_x=screen_x+50
+      #Ahi mismo borramos el avance
       pencolor("black")
       if maze[x0][y0]==0:
         fillcolor("white")
-      elif maze[x0][y0]==1:
-        fillcolor("brown")
       elif maze[x0][y0]==2:
         fillcolor("white")
       elif maze[x0][y0]==3:
@@ -142,6 +110,8 @@ def drawSolution(solution):
         fillcolor("white")
       elif maze[x0][y0]==6:
         fillcolor("red")
+      else:
+        fillcolor("white")
       begin_fill()
       goto(screen_x, screen_y-50)
       goto(screen_x, screen_y)
@@ -149,10 +119,8 @@ def drawSolution(solution):
       goto(screen_x+50, screen_y-50)
       goto(screen_x, screen_y-50)
       end_fill()
+      #Pintamos el avance del agente
       screen_x=screen_x-50
-      x0=x0-1
-    elif i==1:
-      screen_y=screen_y+50
       pencolor("black")
       fillcolor("blue")
       begin_fill()
@@ -162,48 +130,12 @@ def drawSolution(solution):
       goto(screen_x+50, screen_y-50)
       goto(screen_x, screen_y-50)
       end_fill()
-      screen_y=screen_y-50
-      pencolor("black")
-      if maze[x0][y0]==0:
-        fillcolor("white")
-      elif maze[x0][y0]==1:
-        fillcolor("brown")
-      elif maze[x0][y0]==2:
-        fillcolor("white")
-      elif maze[x0][y0]==3:
-        fillcolor("green")
-      elif maze[x0][y0]==4:
-        fillcolor("purple")
-      elif maze[x0][y0]==5:
-        fillcolor("white")
-      elif maze[x0][y0]==6:
-        fillcolor("red")
-      begin_fill()
-      goto(screen_x, screen_y-50)
-      goto(screen_x, screen_y)
-      goto(screen_x+50, screen_y)
-      goto(screen_x+50, screen_y-50)
-      goto(screen_x, screen_y-50)
-      end_fill()
-      screen_y=screen_y+50
+      #Nos delplazamos en la matriz
       y0=y0-1
-    elif i==2:
-      screen_x=screen_x+50
-      pencolor("black")
-      fillcolor("blue")
-      begin_fill()
-      goto(screen_x, screen_y-50)
-      goto(screen_x, screen_y)
-      goto(screen_x+50, screen_y)
-      goto(screen_x+50, screen_y-50)
-      goto(screen_x, screen_y-50)
-      end_fill()
-      screen_x=screen_x-50
+    elif i==1:
       pencolor("black")
       if maze[x0][y0]==0:
         fillcolor("white")
-      elif maze[x0][y0]==1:
-        fillcolor("brown")
       elif maze[x0][y0]==2:
         fillcolor("white")
       elif maze[x0][y0]==3:
@@ -214,19 +146,8 @@ def drawSolution(solution):
         fillcolor("white")
       elif maze[x0][y0]==6:
         fillcolor("red")
-      begin_fill()
-      goto(screen_x, screen_y-50)
-      goto(screen_x, screen_y)
-      goto(screen_x+50, screen_y)
-      goto(screen_x+50, screen_y-50)
-      goto(screen_x, screen_y-50)
-      end_fill()
-      screen_x=screen_x+50
-      x0=x0+1
-    elif i==3:
-      screen_y=screen_y-50
-      pencolor("black")
-      fillcolor("blue")
+      else:
+        fillcolor("white")
       begin_fill()
       goto(screen_x, screen_y-50)
       goto(screen_x, screen_y)
@@ -236,10 +157,19 @@ def drawSolution(solution):
       end_fill()
       screen_y=screen_y+50
       pencolor("black")
+      fillcolor("blue")
+      begin_fill()
+      goto(screen_x, screen_y-50)
+      goto(screen_x, screen_y)
+      goto(screen_x+50, screen_y)
+      goto(screen_x+50, screen_y-50)
+      goto(screen_x, screen_y-50)
+      end_fill()
+      x0=x0-1
+    elif i==2:
+      pencolor("black")
       if maze[x0][y0]==0:
         fillcolor("white")
-      elif maze[x0][y0]==1:
-        fillcolor("brown")
       elif maze[x0][y0]==2:
         fillcolor("white")
       elif maze[x0][y0]==3:
@@ -250,6 +180,42 @@ def drawSolution(solution):
         fillcolor("white")
       elif maze[x0][y0]==6:
         fillcolor("red")
+      else:
+        fillcolor("white")
+      begin_fill()
+      goto(screen_x, screen_y-50)
+      goto(screen_x, screen_y)
+      goto(screen_x+50, screen_y)
+      goto(screen_x+50, screen_y-50)
+      goto(screen_x, screen_y-50)
+      end_fill()
+      screen_x=screen_x+50
+      pencolor("black")
+      fillcolor("blue")
+      begin_fill()
+      goto(screen_x, screen_y-50)
+      goto(screen_x, screen_y)
+      goto(screen_x+50, screen_y)
+      goto(screen_x+50, screen_y-50)
+      goto(screen_x, screen_y-50)
+      end_fill()
+      y0=y0+1
+    elif i==3:
+      pencolor("black")
+      if maze[x0][y0]==0:
+        fillcolor("white")
+      elif maze[x0][y0]==2:
+        fillcolor("white")
+      elif maze[x0][y0]==3:
+        fillcolor("green")
+      elif maze[x0][y0]==4:
+        fillcolor("purple")
+      elif maze[x0][y0]==5:
+        fillcolor("white")
+      elif maze[x0][y0]==6:
+        fillcolor("red")
+      else:
+        fillcolor("white")
       begin_fill()
       goto(screen_x, screen_y-50)
       goto(screen_x, screen_y)
@@ -258,7 +224,25 @@ def drawSolution(solution):
       goto(screen_x, screen_y-50)
       end_fill()
       screen_y=screen_y-50
-      y0=y0+1
+      pencolor("black")
+      fillcolor("blue")
+      begin_fill()
+      goto(screen_x, screen_y-50)
+      goto(screen_x, screen_y)
+      goto(screen_x+50, screen_y)
+      goto(screen_x+50, screen_y-50)
+      goto(screen_x, screen_y-50)
+      end_fill()
+      x0=x0+1
+  pencolor("black")
+  fillcolor("blue")
+  begin_fill()
+  goto(screen_x, screen_y-50)
+  goto(screen_x, screen_y)
+  goto(screen_x+50, screen_y)
+  goto(screen_x+50, screen_y-50)
+  goto(screen_x, screen_y-50)
+  end_fill()
 
 
 
@@ -556,10 +540,10 @@ while(firstMenu):
           solution = dfsSolve()
           if solution is not None:
             print("La búsqueda fue exitosa :)\nSe expandieron "+str(solution[1])+ " nodos.\nLa profundidad del arbol es "+str(solution[2])+"\nLa búsqueda terminó en "+solution[3]+"ms")
+            confLaberinto(maze)
+            drawBasicSolution(solution)
           else:
             print("No se pudo encontrar una solución :(")
-          confLaberinto(maze)
-          drawSolution(solution)
           print("Mostrando solución profundidad evitando ciclos.\n1. Regresar al menu anterior.\n2. Terminar ejecución.")
           menu3 = input("Esperando opcion...\n")
           if menu3 == "1":
