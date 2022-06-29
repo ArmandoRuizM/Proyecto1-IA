@@ -2,14 +2,8 @@ from ast import operator
 from multiprocessing import parent_process
 from typing_extensions import Self
 import numpy as np
-import turtle
-
-# wn= turtle.Screen()
-# wn.bgcolor("Black")
-# wn.title("ProyectoIA")
-# wn.setup(700,700)
-# wn.tracer(0)
- 
+from turtle import *
+import time
 
 # #Crear pen
 # class Pen(turtle.Turtle):
@@ -31,75 +25,247 @@ import turtle
 #   "6": "red"
 # }
 
-# #Crear instancia de pen
-# pen = Pen()
-# #agente = Agent()
+##Función para configurar la pantalla que muestra el ambiente:
+GUI = Screen()
+GUI.bgcolor("Black")
+GUI.title("ProyectoIA")
+GUI.setup(500,500)
+GUI.tracer(0)
 
-# def confLaberinto(Laberinto):
-#     for y in range(len(Laberinto)):
-#       for x in range(len(Laberinto[y])):
-#         cuadro = Laberinto[y][x]
-#         screen_x = -288 + (x * 24)
-#         screen_y =  288 - (y * 24)
-#         if cuadro == 0:
-#           pen.goto(screen_x,screen_y)
-#           pen.color(Colores["0"])
-#           pen.stamp()
-#         elif cuadro == 1:
-#           pen.goto(screen_x,screen_y)
-#           pen.color(Colores["1"])
-#           pen.stamp()
-#         elif cuadro == 2:
-#           pen.goto(screen_x,screen_y)
-#           pen.color(Colores["2"])
-#           pen.stamp()
-#         elif cuadro == 3:
-#           pen.goto(screen_x,screen_y)
-#           pen.color(Colores["3"])
-#           pen.stamp()
-#         elif cuadro == 4:
-#           pen.goto(screen_x,screen_y)
-#           pen.color(Colores["4"])
-#           pen.stamp()
-#         elif cuadro == 5:
-#           pen.goto(screen_x,screen_y)
-#           pen.color(Colores["5"])
-#           pen.stamp()
-#         elif cuadro == 6:
-#           pen.goto(screen_x,screen_y)
-#           pen.color(Colores["6"])
-#           pen.stamp()
+def confLaberinto(Laberinto):
+    for y in range(len(Laberinto)):
+      for x in range(len(Laberinto[y])):
+        speed(10)
+        cuadro = Laberinto[y][x]
+        screen_x = -250 + (x*50) 
+        screen_y = 250 - (y*50)
+        if cuadro == 0:
+          fillcolor("white")
+        elif cuadro == 1:
+          fillcolor("brown")
+        elif cuadro == 2:
+          fillcolor("blue")
+        elif cuadro == 3:
+          fillcolor("green")
+        elif cuadro == 4:
+          fillcolor("purple")
+        elif cuadro == 5:
+          fillcolor("yellow")
+        elif cuadro == 6:
+          fillcolor("red")
+        pencolor("black")
+        begin_fill()
+        goto(screen_x, screen_y-50)
+        goto(screen_x, screen_y)
+        goto(screen_x+50, screen_y)
+        goto(screen_x+50, screen_y-50)
+        goto(screen_x, screen_y-50)
+        end_fill()
+        
 
+def prueba():
+  pensize(1)
+  pencolor("white")
+  fillcolor("white")
+  begin_fill()
+  goto(-250, 250)
+  goto(-250+50, 250)
+  goto(-250+50, 250-50)
+  goto(-250, 250-50)
+  goto(-250, 250)
+  end_fill()
 
 def reading(dir):
-  file=open(dir,"r")
+  file = open(dir,"r")
   string1 = file.read()
   lineas = string1.splitlines()
-
-
-  laberinto= [10]*10
+  laberinto = [10]*10
 
   for i in range(len(laberinto)):
         aux=lineas[i]
         laberinto[i]=aux.split(' ')
 
-
   laberinto = np.array(laberinto,int)
-
   file.close()
   return laberinto
   
-
- 
+ #Se carga el laberinto a la variable maze que se usa en todo lado
 maze=reading("Prueba1.txt")
-#print(maze)
-#confLaberinto(maze)
+
+def drawSolution(solution):
+  x0=-1
+  y0=-1
+  #Se determina cual es la posición inicial del agente
+  for i in range(len(maze)):
+    for j in range(len(maze)):
+      if(maze[i][j]==2):
+        x0=i
+        y0=j
+  screen_x=-250+(x0*50)
+  screen_y=250-(y0*50)
+  speed(5)
+  pencolor("black")
+  fillcolor("white")
+  begin_fill()
+  goto(screen_x, screen_y-50)
+  goto(screen_x, screen_y)
+  goto(screen_x+50, screen_y)
+  goto(screen_x+50, screen_y-50)
+  goto(screen_x, screen_y-50)
+  end_fill()
+  solution[0].pop()
+  for i in reversed(solution[0]):
+    if i==0:
+      screen_x=screen_x-50
+      pencolor("black")
+      fillcolor("blue")
+      begin_fill()
+      goto(screen_x, screen_y-50)
+      goto(screen_x, screen_y)
+      goto(screen_x+50, screen_y)
+      goto(screen_x+50, screen_y-50)
+      goto(screen_x, screen_y-50)
+      end_fill()
+      screen_x=screen_x+50
+      pencolor("black")
+      if maze[x0][y0]==0:
+        fillcolor("white")
+      elif maze[x0][y0]==1:
+        fillcolor("brown")
+      elif maze[x0][y0]==2:
+        fillcolor("white")
+      elif maze[x0][y0]==3:
+        fillcolor("green")
+      elif maze[x0][y0]==4:
+        fillcolor("purple")
+      elif maze[x0][y0]==5:
+        fillcolor("white")
+      elif maze[x0][y0]==6:
+        fillcolor("red")
+      begin_fill()
+      goto(screen_x, screen_y-50)
+      goto(screen_x, screen_y)
+      goto(screen_x+50, screen_y)
+      goto(screen_x+50, screen_y-50)
+      goto(screen_x, screen_y-50)
+      end_fill()
+      screen_x=screen_x-50
+      x0=x0-1
+    elif i==1:
+      screen_y=screen_y+50
+      pencolor("black")
+      fillcolor("blue")
+      begin_fill()
+      goto(screen_x, screen_y-50)
+      goto(screen_x, screen_y)
+      goto(screen_x+50, screen_y)
+      goto(screen_x+50, screen_y-50)
+      goto(screen_x, screen_y-50)
+      end_fill()
+      screen_y=screen_y-50
+      pencolor("black")
+      if maze[x0][y0]==0:
+        fillcolor("white")
+      elif maze[x0][y0]==1:
+        fillcolor("brown")
+      elif maze[x0][y0]==2:
+        fillcolor("white")
+      elif maze[x0][y0]==3:
+        fillcolor("green")
+      elif maze[x0][y0]==4:
+        fillcolor("purple")
+      elif maze[x0][y0]==5:
+        fillcolor("white")
+      elif maze[x0][y0]==6:
+        fillcolor("red")
+      begin_fill()
+      goto(screen_x, screen_y-50)
+      goto(screen_x, screen_y)
+      goto(screen_x+50, screen_y)
+      goto(screen_x+50, screen_y-50)
+      goto(screen_x, screen_y-50)
+      end_fill()
+      screen_y=screen_y+50
+      y0=y0-1
+    elif i==2:
+      screen_x=screen_x+50
+      pencolor("black")
+      fillcolor("blue")
+      begin_fill()
+      goto(screen_x, screen_y-50)
+      goto(screen_x, screen_y)
+      goto(screen_x+50, screen_y)
+      goto(screen_x+50, screen_y-50)
+      goto(screen_x, screen_y-50)
+      end_fill()
+      screen_x=screen_x-50
+      pencolor("black")
+      if maze[x0][y0]==0:
+        fillcolor("white")
+      elif maze[x0][y0]==1:
+        fillcolor("brown")
+      elif maze[x0][y0]==2:
+        fillcolor("white")
+      elif maze[x0][y0]==3:
+        fillcolor("green")
+      elif maze[x0][y0]==4:
+        fillcolor("purple")
+      elif maze[x0][y0]==5:
+        fillcolor("white")
+      elif maze[x0][y0]==6:
+        fillcolor("red")
+      begin_fill()
+      goto(screen_x, screen_y-50)
+      goto(screen_x, screen_y)
+      goto(screen_x+50, screen_y)
+      goto(screen_x+50, screen_y-50)
+      goto(screen_x, screen_y-50)
+      end_fill()
+      screen_x=screen_x+50
+      x0=x0+1
+    elif i==3:
+      screen_y=screen_y-50
+      pencolor("black")
+      fillcolor("blue")
+      begin_fill()
+      goto(screen_x, screen_y-50)
+      goto(screen_x, screen_y)
+      goto(screen_x+50, screen_y)
+      goto(screen_x+50, screen_y-50)
+      goto(screen_x, screen_y-50)
+      end_fill()
+      screen_y=screen_y+50
+      pencolor("black")
+      if maze[x0][y0]==0:
+        fillcolor("white")
+      elif maze[x0][y0]==1:
+        fillcolor("brown")
+      elif maze[x0][y0]==2:
+        fillcolor("white")
+      elif maze[x0][y0]==3:
+        fillcolor("green")
+      elif maze[x0][y0]==4:
+        fillcolor("purple")
+      elif maze[x0][y0]==5:
+        fillcolor("white")
+      elif maze[x0][y0]==6:
+        fillcolor("red")
+      begin_fill()
+      goto(screen_x, screen_y-50)
+      goto(screen_x, screen_y)
+      goto(screen_x+50, screen_y)
+      goto(screen_x+50, screen_y-50)
+      goto(screen_x, screen_y-50)
+      end_fill()
+      screen_y=screen_y-50
+      y0=y0+1
 
 
-#while True:
- # wn.update()
 
-#Implementación de un tipo de dato pila, para la implementación del algoritmo de búsqueda por profundidad (robado de internet)
+ ##############################################################################################
+ # IMPLEMENTACIÓN DE ALGORITMO DE BÚSQUEDA POR PROFUNDIDAD EVITANDO CICLOS, POR ARMANDO RUIZ: #                        
+ ##############################################################################################
+ #Implementación de un tipo de dato pila, para la implementación del algoritmo de búsqueda por profundidad (robado de internet)
 class Stack: 
     def __init__(self): 
         self.elements = [] 
@@ -188,7 +354,7 @@ class DfsNode:
   
 
 #Para la búsqueda preferente por profundidad, un estado será una lista de la siguiente manera:
-#[posición en X, posición en Y, cantidad de items, cogió nave1?, cogió nave2?, gasolina nave1, gasolina nave2]
+#[posición en X, posición en Y, cogió item1?, cogió item2?, coordenada X del item1, coordenada y del item1]
 #se debe determinar cuál es el estado inicial para construir el nodo raíz:
 def initStatus(maze):
   status=[0,0,False,False,-1,-1]
@@ -293,6 +459,7 @@ def getPath(node):
 
 def dfsSolve():
   #Contador de nodos expandidos
+  startTime = time.time()
   expandedNodes = 0
   #Se crea la pila
   dfsTree = Stack()
@@ -303,15 +470,17 @@ def dfsSolve():
   while go:
     #Si no quedaron nodos a expandir y ninguno fue meta, se dice que no existe solución
     if dfsTree.is_empty():
-      return ("La búsqueda falló :(")
+      return None
     #Se guarda el nodo raíz en n
     n=dfsTree.peek()
     #Se saca el nodo raíz de la pila
     dfsTree.pop()
     expandedNodes+=1
     if n.solution(): #Se determina si el nodo raíz es meta
+      finishTime = str(time.time()-startTime)
+      solution = [getPath(n), expandedNodes, n.getDepth(), finishTime]
       #De ser así, se dice que existe solución
-      return ("La búsqueda fue exitosa :)\nSe expandieron "+str(expandedNodes)+ " nodos.\nLa profundidad del arbol es "+str(n.getDepth()))
+      return solution
     else:
       #Si no es meta, entonces se expande
       createdNodes = expandNode(n)
@@ -324,5 +493,129 @@ def dfsSolve():
       if not createdNodes[0] is None:
         dfsTree.push(createdNodes[0])
 
-print(dfsSolve())
 
+###################################################
+# CONTROL DE FLUJO DEL PROYECTO, POR ARMANDO RUIZ:#
+###################################################
+#variable que permite al programa saber si sigue o para
+firstMenu = True
+
+while(firstMenu):
+  print("Bienvenido al proyecto #1 de Introduccion a la inteligencia artificial, a continuacion ingrese la opcion deseada:\n1. Mostrar ambiente inicial.\n2. Resolver con algoritmo de busqueda no informada.\n3. Resolver con algoritmo de busqueda informada.\n4. Terminar ejecucion.")
+  menu1 = input("Esperando opcion...\n")
+  if menu1 == "1":
+    secondMenu = True
+    while(secondMenu):
+      confLaberinto(maze)
+      #prueba()
+      print("Mostrando ambiente inicial.\n1. Regresar al menu principal.\n2. Terminar ejecución.")
+      menu2 = input("Esperando opcion...\n")
+      if menu2 == "1":
+        GUI.clear()
+        GUI.reset()
+        secondMenu = False
+      elif menu2 == "2":
+        secondMenu = False
+        firstMenu = False
+      else:
+        print('No se ha reconocido la orden seleccionada, por favor intentelo de nuevo')
+  elif menu1 == "2":
+    secondMenu = True
+    while(secondMenu):
+      print("Seleccione uno de los siguientes algoritmos de busqueda no informada:\n1. Amplitud.\n2. Costo uniforme.\n3. Profundidad evitando ciclos.\n4. Regresar al menu principal.\n5. Terminar ejecución.")
+      menu2 = input("Esperando opcion...\n")
+      if menu2 == "1":
+        thirdMenu = True
+        while(thirdMenu):
+          print("Mostrando solución por amplitud.\n1. Regresar al menu anterior.\n2. Terminar ejecución.")
+          menu3 = input("Esperando opcion...\n")
+          if menu3 == "1":
+            thirdMenu = False
+          elif menu3 == "2":
+            thirdMenu = False
+            secondMenu = False
+            firstMenu = False
+          else:
+            print('No se ha reconocido la orden seleccionada, por favor intentelo de nuevo')
+      elif menu2 == "2":
+        thirdMenu = True
+        while(thirdMenu):
+          print("Mostrando solución por costo uniforme.\n1. Regresar al menu anterior.\n2. Terminar ejecución.")
+          menu3 = input("Esperando opcion...\n")
+          if menu3 == "1":
+            thirdMenu = False
+          elif menu3 == "2":
+            thirdMenu = False
+            secondMenu = False
+            firstMenu = False
+          else:
+            print('No se ha reconocido la orden seleccionada, por favor intentelo de nuevo')
+      elif menu2 == "3":
+        thirdMenu = True
+        while(thirdMenu):
+          solution = dfsSolve()
+          if solution is not None:
+            print("La búsqueda fue exitosa :)\nSe expandieron "+str(solution[1])+ " nodos.\nLa profundidad del arbol es "+str(solution[2])+"\nLa búsqueda terminó en "+solution[3]+"ms")
+          else:
+            print("No se pudo encontrar una solución :(")
+          confLaberinto(maze)
+          drawSolution(solution)
+          print("Mostrando solución profundidad evitando ciclos.\n1. Regresar al menu anterior.\n2. Terminar ejecución.")
+          menu3 = input("Esperando opcion...\n")
+          if menu3 == "1":
+            thirdMenu = False
+          elif menu3 == "2":
+            thirdMenu = False
+            secondMenu = False
+            firstMenu = False
+          else:
+            print('No se ha reconocido la orden seleccionada, por favor intentelo de nuevo')
+      elif menu2 == "4":
+        secondMenu = False
+      elif menu2 == "5":
+        secondMenu = False
+        firstMenu = False
+      else:
+        print('No se ha reconocido la orden seleccionada, por favor intentelo de nuevo')
+  elif menu1 == "3":
+    secondMenu = True
+    while(secondMenu):
+      print("Seleccione uno de los siguientes algoritmos de busquedainformada:\n1. Avara.\n2. A*.\n3. Regresar al menu principal.\n4. Terminar ejecucion.")
+      menu2 = input("Esperando opcion...\n")
+      if menu2 == "1":
+        thirdMenu = True
+        while(thirdMenu):
+          print("Mostrando solución por busqueda Avara.\n1. Regresar al menu anterior.\n2. Terminar ejecución.")
+          menu3 = input("Esperando opcion...\n")
+          if menu3 == "1":
+            thirdMenu = False
+          elif menu3 == "2":
+            thirdMenu = False
+            secondMenu = False
+            firstMenu = False
+          else:
+            print('No se ha reconocido la orden seleccionada, por favor intentelo de nuevo')
+      elif menu2 == "2":
+        thirdMenu = True
+        while(thirdMenu):
+          print("Mostrando solución por A*.\n1. Regresar al menu anterior.\n2. Terminar ejecución.")
+          menu3 = input("Esperando opcion...\n")
+          if menu3 == "1":
+            thirdMenu = False
+          elif menu3 == "2":
+            thirdMenu = False
+            secondMenu = False
+            firstMenu = False
+          else:
+            print('No se ha reconocido la orden seleccionada, por favor intentelo de nuevo')
+      elif menu2 == "3":
+        secondMenu = False
+      elif menu2 == "4":
+        secondMenu = False
+        firstMenu = False
+      else:
+        print('No se ha reconocido la orden seleccionada, por favor intentelo de nuevo')
+  elif menu1 == "4":
+    firstMenu = False
+  else:
+    print('No se ha reconocido la orden seleccionada, por favor intentelo de nuevo')
