@@ -62,10 +62,11 @@ def drawBasicSolution(solution):
   for i in range(len(maze)):
     for j in range(len(maze)):
       if(maze[i][j]==2):
+        print("X:" + str(i)+" Y:"+ str(j))
         x0=i
         y0=j
-  screen_x=-250+(x0*50)
-  screen_y=250-(y0*50)
+  screen_x=-250+(y0*50)
+  screen_y=250-(x0*50)
   speed(6)
   pencolor("black")
   fillcolor("white")
