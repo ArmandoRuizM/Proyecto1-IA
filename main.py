@@ -1,7 +1,7 @@
-from ast import operator
 from DFS import dfsSolve
 from GUI import maze, confLaberinto, GUI, drawBasicSolution
 from BFS import bfsSolve
+from Greedy import greedySolve
 
 ###################################################
 # CONTROL DE FLUJO DEL PROYECTO, POR ARMANDO RUIZ:#
@@ -71,7 +71,7 @@ while(firstMenu):
         while(thirdMenu):
           solution = dfsSolve()
           if solution is not None:
-            print("La búsqueda fue exitosa :)\nSe expandieron "+str(solution[1])+ " nodos.\nLa profundidad del arbol es "+str(solution[2])+"\nLa búsqueda terminó en "+solution[3]+"ms")
+            print("La búsqueda fue exitosa :)\nSe expandieron "+str(solution[1])+ " nodos.\nLa profundidad del arbol es "+str(solution[2])+"\nLa búsqueda terminó en "+solution[3]+"s")
             confLaberinto(maze)
             drawBasicSolution(solution)
           else:
@@ -101,6 +101,13 @@ while(firstMenu):
       if menu2 == "1":
         thirdMenu = True
         while(thirdMenu):
+          solution = greedySolve()
+          if solution is not None:
+            print("La búsqueda fue exitosa :)\nSe expandieron "+str(solution[1])+ " nodos.\nLa profundidad del arbol es "+str(solution[2])+"\nLa búsqueda terminó en "+solution[3]+"s")
+            confLaberinto(maze)
+            drawBasicSolution(solution)
+          else:
+            print("No se pudo encontrar una solución :(")
           print("Mostrando solución por busqueda Avara.\n1. Regresar al menu anterior.\n2. Terminar ejecución.")
           menu3 = input("Esperando opcion...\n")
           if menu3 == "1":
