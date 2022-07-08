@@ -1,23 +1,38 @@
 from operator import itemgetter
 import numpy as np
 import time
-from GUI import reading
+#from GUI import reading
 
- ##############################################################################
- # IMPLEMENTACIÓN DE ALGORITMO DE BÚSQUEDA ÁVARA, POR EQUIPO DE DESARROLLO:   #                        
- ##############################################################################
+ ###########################################################################################
+ # IMPLEMENTACIÓN DE ALGORITMO DE BÚSQUEDA POR COSTO UNIFORME, POR EQUIPO DE DESARROLLO:   #                        
+ ###########################################################################################
+
+def reading(dir):
+  file = open(dir,"r")
+  string1 = file.read()
+  lineas = string1.splitlines()
+  laberinto = [10]*10
+
+  for i in range(len(laberinto)):
+        aux=lineas[i]
+        laberinto[i]=aux.split(' ')
+
+  laberinto = np.array(laberinto,int)
+  file.close()
+  return laberinto
 
  #Se carga el laberinto a la variable maze que se usa en todo lado
 maze=reading("Prueba1.txt")
 
- #Se define la clase Greedy node, usada para implementar el algoritmo de búsqueda informada Ávara
-class GreedyNode:
+ #Se define la clase Uniform Cost node, usada para implementar el algoritmo de búsqueda por costo uniforme
+class UCNode:
   #Se define el método constructor
-  def __init__(self, status, parent, operator, depth):
+  def __init__(self, status, parent, operator, depth, cost):
     self.status = status
     self.parent = parent
     self.operator = operator
     self.depth = depth
+    self.cost = cost
 
   #Método bobo
   def ImNode(self):
@@ -25,6 +40,8 @@ class GreedyNode:
 
   #Método que recibe un entero entre 0 y 3, y mueve el agente en una dirección, 0=izquierda, 1=arriba, 2=derecha, 3=abajo y retorna el nuevo estado en el que se encuentra el agente
   def move(self, direction):
+    statusAndCost = [None,None]
+    newCost=-1
     newStatus=self.status.copy()
     #Se realiza el cambio en la posición de acuerdo al operador que se usa:
     if direction == 0:#izquierda
@@ -35,6 +52,83 @@ class GreedyNode:
       newStatus[1]=self.status[1]+1
     if direction == 3:#abajo
       newStatus[0]=self.status[0]+1
+
+    ##Se verifica todo el tema de las naves:
+    ##Si va a coger la nave1
+    if(maze[newStatus[0]][newStatus[1]]==3):
+        #Si no ha cogido la nave1 ya
+        if(not (self.status[6])):
+            #Si no ha cogido la nave2
+            if(not (self.status[10])):
+                newStatus[6]=True
+            else:
+                #Miramos si se quedó sin gasolina
+                if(self.status[13]<=0):
+                    newStatus[6]=True
+    
+    ##Si va a coger la nave2
+    if(maze[newStatus[0]][newStatus[1]]==4):
+        #Si no ha cogido la nave2 ya
+        if(not (self.status[10])):
+            #Si no ha cogido la nave1
+            if(not (self.status[6])):
+                newStatus[10]=True
+            else:
+                #Miramos si se quedó sin gasolina
+                if(self.status[9]<=0):
+                    newStatus[10]=True
+
+    #Se gasta la gasolina de la nave que tenga
+    #Si tiene nave 1
+    if(self.status[6]):
+        #Si tiene gasolina
+        if(self.status[9]>0):
+            #Se reduce en uno la gasolina
+            newStatus[9]=self.status[9]-1
+
+    #Si tiene nave 2
+    if(self.status[10]):
+        #Si tiene gasolina
+        if(self.status[13]>0):
+            #Se reduce en uno la gasolina
+            newStatus[13]=self.status[13]-1
+
+
+    ##Se calcula el costo con respecto a qué casilla se hace el siguiente movimiento:
+    if(maze[newStatus[0]][newStatus[1]]!=6):
+        ##Siempre que no caiga en un aceite, el costo aumenta en 1
+        newCost=self.cost+1
+    else:
+        ##Si cae en una casilla con aceite
+        ##Caso en el que tiene las dos naves
+        if(newStatus[6] and newStatus[10]):
+            if(newStatus[9]>0):
+                newCost=self.cost+1
+            else:
+                if(newStatus[13]>0):
+                    newCost=self.cost+1
+                else:
+                    newCost=self.cost+4
+        else:
+            ##Caso en el que tiene nave1
+            if(newStatus[6]):
+                if(newStatus[9]>0):
+                    newCost=self.cost+1
+                else:
+                    newCost=self.cost+4
+            else:
+                ##Caso en el que tiene nave2
+                if(newStatus[10]):
+                    if(newStatus[13]>0):
+                        newCost=self.cost+1
+                    else:
+                        newCost=self.cost+4
+                else:
+                    newCost=self.cost+4
+        
+        
+        
+
     #Luego se verifican los demás posibles cambios en el estado
     #Se verifica los casos en los que llega a un item
     if (newStatus[2]==True and newStatus[3]==False): #Se mira si ya se tomó un objeto, entonces se va a tomar un segundo
@@ -51,7 +145,9 @@ class GreedyNode:
         newStatus[4]=newStatus[0]
         newStatus[5]=newStatus[1]
     
-    return newStatus
+    statusAndCost[0]=newStatus
+    statusAndCost[1]=newCost
+    return statusAndCost
 
   #Getter del estado del nodo
   def getStatus(self):
@@ -69,6 +165,10 @@ class GreedyNode:
   def getOperator(self):
     return self.operator
 
+    #Getter del costo del nodo
+  def getCost(self):
+    return self.cost
+
   #Método que retorna si se llegó a la meta o no
   def solution(self):
     if (self.status[2] and self.status[3]):
@@ -77,14 +177,17 @@ class GreedyNode:
       return False
 
 #Para la búsqueda Ávara un estado tiene la siguiente representación:
-#[posición en X, posición en Y, cogió item1?, cogió item2?, coordenada X del item1, coordenada y del item1]
+#[posición en X, posición en Y, cogió item1?, cogió item2?, coordenada X del item1, coordenada y del item1,
+#cogió nave1?, coordenada X nave1, coordenada Y nave1, gasolina nave1, cogió nave2?, coordenada X nave2, 
+#coordenada Y nave2, gasolina nave2]
 #se debe determinar cuál es el estado inicial para construir el nodo raíz:
 def initStatus(maze):
-  status=[0,0,False,False,-1,-1]
+  status=[0,0,False,False,-1,-1, False, -1, -1, -1, False, -1, -1, -1]
   for i in range(len(maze)):
     for j in range(len(maze)):
       if(maze[i][j]==2):
-        status=[i,j,False,False, -1, -1]
+        aux=prepareStarShips()
+        status=[i,j,False,False, -1, -1, False, aux[0][0], aux[0][1], 10, False, aux[1][0], aux[1][1], 20]
   return status
 
 def prepareHeuristic():
@@ -105,21 +208,21 @@ def prepareHeuristic():
                     return("Fatal error")
     return objects
 
-def manhattan(x0,y0,x1,y1):
-    distance=abs(x1-x0)+abs(y1-y0)
-    return distance
-#Definición de la función heurística que se explica en el informe anexo:
-def h(n):
-    objects = prepareHeuristic()
-    #Caso en el que no ha cogido ningún objeto:
-    if n.getStatus()[2] and n.getStatus()[3]:
-        estimatedCost=0
-    elif n.getStatus()[2]:
-        estimatedCost=manhattan(n.getStatus()[0], n.getStatus()[1], objects[1][0], objects[1][1])
-    else:
-        estimatedCost=manhattan(n.getStatus()[0], n.getStatus()[1], objects[0][0], objects[0][1])+manhattan(n.getStatus()[0], n.getStatus()[1], objects[1][0], objects[1][1])
-    return estimatedCost
-
+def prepareStarShips():
+    ships=[[-1,-1],[-1,-1]]
+    for i in range(len(maze)):
+        for j in range(len(maze)):
+            if(maze[i][j]==3):
+                ships[0][0]=i
+                ships[0][1]=j
+    
+    for i in range(len(maze)):
+        for j in range(len(maze)):
+            if(maze[i][j]==4):
+                ships[1][0]=i
+                ships[1][1]=j
+    
+    return ships
 
 #Método que recibe un estado y con base en este determina en qué direcciones se podría mover el agente
 def radar(status):
@@ -137,6 +240,7 @@ def radar(status):
     if maze[status[0]+1][status[1]]!=1:#Si no es un muro
       allowedMoves[3]=True#Se puede mover hacia abajo
   return allowedMoves
+
 
 #Método que recibe un estado y un nodo, para compararlos y determinar si el agente ya se ha encontrado en ese estado antes, es decir, hay un ciclo
 def thereIsCycle(status, node):
@@ -169,28 +273,28 @@ def expandNode(node):
   children = [None, None, None, None]
 
   if allowedMoves[0]: #Miramos si se puede mover a la izquierda
-    #De ser posible, miramos si el estado resultante no sería un ciclo
-    if not thereIsCycle(node.move(0), node):
-      #En caso de no existir ciclo, creamos un nuevo nodo y lo guardamos en children
-      children[0]=GreedyNode(node.move(0), node, 0, node.getDepth()+1)
+    aux0=node.move(0)
+    if not thereIsCycle(aux0[0], node):
+        #Creamos un nuevo nodo y lo guardamos en children
+        children[0]=UCNode(aux0[0], node, 0, node.getDepth()+1, aux0[1])
 
   if allowedMoves[1]: #Miramos si se puede mover hacia arriba
-    #De ser posible, miramos si el estado resultante no sería un ciclo
-    if not thereIsCycle(node.move(1), node):
-      #En caso de no existir ciclo, creamos un nuevo nodo y lo guardamos en children
-      children[1]=GreedyNode(node.move(1), node, 1, node.getDepth()+1)
+    aux1=node.move(1)
+    if not thereIsCycle(aux1[0], node):
+        #Creamos un nuevo nodo y lo guardamos en children
+        children[1]=UCNode(aux1[0], node, 1, node.getDepth()+1, aux1[1])
 
   if allowedMoves[2]: #Miramos si se puede mover a la derecha
-    #De ser posible, miramos si el estado resultante no sería un ciclo
-    if not thereIsCycle(node.move(2), node):
-      #En caso de no existir ciclo, creamos un nuevo nodo y lo guardamos en children
-      children[2]=GreedyNode(node.move(2), node, 2, node.getDepth()+1)
+    aux2=node.move(2)
+    if not thereIsCycle(aux2[0], node):
+        #Creamos un nuevo nodo y lo guardamos en children
+        children[2]=UCNode(aux2[0], node, 2, node.getDepth()+1, aux2[1])
 
   if allowedMoves[3]: #Miramos si se puede mover abajo
-    #De ser posible, miramos si el estado resultante no sería un ciclo
-    if not thereIsCycle(node.move(3), node):
-      #En caso de no existir ciclo, creamos un nuevo nodo y lo guardamos en children
-      children[3]=GreedyNode(node.move(3), node, 3, node.getDepth()+1)
+    aux3=node.move(3)
+    if not thereIsCycle(aux3[0], node):
+        #Creamos un nuevo nodo y lo guardamos en children 
+        children[3]=UCNode(aux3[0], node, 3, node.getDepth()+1, aux3[1])
 
   return children
 
@@ -215,31 +319,43 @@ def getPath(node):
 
   return path
 
-#Función clave de ordenamiento por heurística
-def heuristic(a):
+
+def isIn(node, list):
+    inside = False
+    for i in range(len(list)):
+        if(node.getStatus()==list[i][0].getStatus()):
+            inside = True
+    return inside
+    
+#Función clave de ordenamiento por costo
+def cost(a):
     return a[1]
 
-def greedySolve():
+def uniformSolve():
     #Contador de nodos expandidos
     startTime = time.time()
     expandedNodes = 0
     #Se crea la cola de prioridad
-    greedyQueue = []
+    uniformQueue = []
     #Se le añade el nodo raíz
-    greedyQueue.append([GreedyNode(initStatus(maze), None, None, 0), h(GreedyNode(initStatus(maze), None, None, 0))])
+    uniformQueue.append([UCNode(initStatus(maze), None, None, 0, 0), 0])
+    #print(uniformQueue[0][0].getCost())
     go = True
     #Se inicia un bucle que solo termina al encontrar solución o decir que no existe una
     while go:
         #Si no quedaron nodos a expandir y ninguno fue meta, se dice que no existe solución
-        if len(greedyQueue)<=0:
+        if len(uniformQueue)<=0:
             return None
         #Se guarda el nodo a revisar en n
-        greedyQueue.sort(key=heuristic)
-        n=greedyQueue[0][0]
+        uniformQueue.sort(key=cost)
+        n=uniformQueue[0][0]
+        #print(n.getStatus())
+        #print(n.getCost())
         expandedNodes+=1
-        greedyQueue.pop(0)
+        uniformQueue.pop(0)
         
         if n.solution(): #Se determina si el nodo raíz es meta
+            print(n.getCost())
             finishTime = str(time.time()-startTime)
             solution = [getPath(n), expandedNodes, n.getDepth(), finishTime]
             # #De ser así, se dice que existe solución
@@ -248,10 +364,16 @@ def greedySolve():
             #Si no es meta, entonces se expande
             createdNodes = expandNode(n)
             if not createdNodes[3] is None:
-                greedyQueue.append([createdNodes[3],h(createdNodes[3])])
+                if not (isIn(createdNodes[3], uniformQueue)):
+                    uniformQueue.append([createdNodes[3],createdNodes[3].getCost()])
             if not createdNodes[2] is None:
-                greedyQueue.append([createdNodes[2],h(createdNodes[2])])
+                if not (isIn(createdNodes[2], uniformQueue)):
+                    uniformQueue.append([createdNodes[2],createdNodes[2].getCost()])
             if not createdNodes[1] is None:
-                greedyQueue.append([createdNodes[1],h(createdNodes[1])])
+                if not (isIn(createdNodes[1], uniformQueue)):
+                    uniformQueue.append([createdNodes[1],createdNodes[1].getCost()])
             if not createdNodes[0] is None:
-                greedyQueue.append([createdNodes[0],h(createdNodes[0])])
+                if not (isIn(createdNodes[0], uniformQueue)):
+                    uniformQueue.append([createdNodes[0],createdNodes[0].getCost()])
+
+print(uniformSolve())
