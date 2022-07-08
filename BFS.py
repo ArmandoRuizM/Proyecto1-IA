@@ -2,9 +2,9 @@ import numpy as np
 import time
 from GUI import reading
  ##############################################################################################
- # IMPLEMENTACIÓN DE ALGORITMO DE BÚSQUEDA POR AMPLITUD EVITANDO CICLOS, POR DANIEL ARANGO: #                        
+ # IMPLEMENTACIÓN DE ALGORITMO DE BÚSQUEDA POR AMPLITUD, POR DANIEL ARANGO: #                        
  ##############################################################################################
- #Implementación de un tipo de dato pila, para la implementación del algoritmo de búsqueda por profundidad (robado de internet)
+ #Implementación de un tipo de dato pila
 
  #Se carga el laberinto a la variable maze que se usa en todo lado
 maze=reading("Prueba1.txt")
@@ -29,7 +29,7 @@ class Stack:
     def showStack(self):
         print(self.elements)
 
-#Se define la clase Depth first search node, usada para implementar el algoritmo de búsqueda preferente por profundidad
+#Se define la clase Breadth First Search node, usada para implementar el algoritmo de búsqueda preferente por amplitud
 class BfsNode:
   #Se define el método constructor
   def __init__(self, status, parent, operator, depth):
@@ -209,7 +209,7 @@ def bfsSolve():
         #Si no quedaron nodos a expandir y ninguno fue meta, se dice que no existe solución
         if bfsTree.is_empty():
             return None
-        #Se guarda el nodo raíz en n
+        
           
         n=bfsTree.elements.pop(0)
         
