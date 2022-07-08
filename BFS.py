@@ -1,9 +1,9 @@
 import numpy as np
 import time
 from GUI import reading
- ##############################################################################################
+ ############################################################################
  # IMPLEMENTACIÓN DE ALGORITMO DE BÚSQUEDA POR AMPLITUD, POR DANIEL ARANGO: #                        
- ##############################################################################################
+ ############################################################################
  #Implementación de un tipo de dato pila
 
  #Se carga el laberinto a la variable maze que se usa en todo lado
