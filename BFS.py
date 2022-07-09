@@ -200,7 +200,7 @@ def bfsSolve():
     #Contador de nodos expandidos
     startTime = time.time()
     expandedNodes = 0
-    #Se crea la pila
+    #Se crea la cola
     bfsTree = Stack()
     #Se le añade el nodo raíz
     bfsTree.push(BfsNode(initStatus(maze),None,None,0))

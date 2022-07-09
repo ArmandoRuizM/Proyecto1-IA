@@ -111,15 +111,17 @@ def manhattan(x0,y0,x1,y1):
 #Definición de la función heurística que se explica en el informe anexo:
 def h(n):
     objects = prepareHeuristic()
-    #Caso en el que no ha cogido ningún objeto:
-    if n.getStatus()[2] and n.getStatus()[3]:
-        estimatedCost=0
-    elif n.getStatus()[2]:
-        estimatedCost=manhattan(n.getStatus()[0], n.getStatus()[1], objects[1][0], objects[1][1])
-    else:
-        estimatedCost=manhattan(n.getStatus()[0], n.getStatus()[1], objects[0][0], objects[0][1])+manhattan(n.getStatus()[0], n.getStatus()[1], objects[1][0], objects[1][1])
+    i1=1
+    i2=1
+    #Item #1
+    if(n.getStatus()[2]):
+        i1=0
+    #Item #2
+    if(n.getStatus()[3]):
+        i2=0
+    estimatedCost = (manhattan(n.getStatus()[0], n.getStatus()[1], objects[0][0], objects[0][1])*i1) 
+    + (manhattan(n.getStatus()[0], n.getStatus()[1], objects[1][0], objects[1][1])*i2)
     return estimatedCost
-
 
 #Método que recibe un estado y con base en este determina en qué direcciones se podría mover el agente
 def radar(status):
