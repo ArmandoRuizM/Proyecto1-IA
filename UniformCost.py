@@ -4,7 +4,7 @@ import time
 #from GUI import reading
 
  ###########################################################################################
- # IMPLEMENTACIÓN DE ALGORITMO DE BÚSQUEDA POR COSTO UNIFORME, POR EQUIPO DE DESARROLLO:   #                        
+ # IMPLEMENTACIÓN DE ALGORITMO DE BÚSQUEDA POR COSTO UNIFORME, POR MATEO OBANDO:   #                        
  ###########################################################################################
 
 def reading(dir):
@@ -126,9 +126,6 @@ class UCNode:
                 else:
                     newCost=self.cost+4
         
-        
-        
-
     #Luego se verifican los demás posibles cambios en el estado
     #Se verifica los casos en los que llega a un item
     if (newStatus[2]==True and newStatus[3]==False): #Se mira si ya se tomó un objeto, entonces se va a tomar un segundo
@@ -189,24 +186,6 @@ def initStatus(maze):
         aux=prepareStarShips()
         status=[i,j,False,False, -1, -1, False, aux[0][0], aux[0][1], 10, False, aux[1][0], aux[1][1], 20]
   return status
-
-def prepareHeuristic():
-    count=0
-    objects=[[-1,-1],[-1,-1]]
-    for i in range(len(maze)):
-        for j in range(len(maze)):
-            if(maze[i][j]==5):
-                if(count==0):
-                    objects[0][0]=i
-                    objects[0][1]=j
-                    count+=1
-                elif(count==1):
-                    objects[1][0]=i
-                    objects[1][1]=j
-                    count+=1
-                else:
-                    return("Fatal error")
-    return objects
 
 def prepareStarShips():
     ships=[[-1,-1],[-1,-1]]
